@@ -4,9 +4,10 @@ import os
 from collections import defaultdict
 
 def cleaning_text(text):
-    x = re.sub(r'#@[가-힣]{1,}#', '', text)
+    x = re.sub(r'#@+[가-힣]{1,}#', '', text)
     x = re.sub(r'[A-Z]{1}.', '', x)
     x = re.sub("\n", '. ', x)
+    x = x.strip()
     return x
 
 def get_morpheme(lines):
@@ -29,10 +30,13 @@ def read_json_file(root_directory, save_dict):
         text = cleaning_text(text)
         category = json_file['info'][0]['annotations']['subject']
         lines = json_file['info'][0]['annotations']['lines']
+        line_list = []
         morpheme = []
         for line in lines:
             morpheme.append(line['morpheme'])
+            line_list.append(cleaning_text(line['text']))
         dialog['text'] = text
+        dialog['lines'] = line_list
         dialog['morpheme'] = get_morpheme(morpheme)
         save_dict[f'{category}'].append(dialog)
 
@@ -40,3 +44,6 @@ folder = './json_file/'
 dialog_dict = defaultdict(list)
 for category in os.listdir(folder):
     read_json_file(folder + category, dialog_dict)
+
+with open("tokenized_morphs.json", "w", encoding="utf-8") as json_file:
+    json.dump(dialog_dict, json_file, indent=4)
