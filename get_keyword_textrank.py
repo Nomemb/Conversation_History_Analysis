@@ -41,6 +41,15 @@ for key in list(data.keys()):
 
 df_total = pd.concat(df_list, axis=0).reset_index(drop=True)
 
+with open("./not_tokenized_dialogs.json", "r", encoding='utf-8') as f:
+    data2 = json.load(f)
+
+df_total_ver2 = pd.DataFrame.from_dict(data2)
+for idx, instance in df_total_ver2.iterrows():
+    words = set(instance['keyword'])
+    instance.keyword = list(words)
+
+
 ### text 기반 labelling 진행 - Label Encoding
 # label_dict = {
 #     '가입문의' : 0,
@@ -57,6 +66,9 @@ df_total.loc[df_total.category == '환불/반품/교환', 'label'] = '해지'
 df_total.loc[df_total.category == '등록 문의', 'label'] = '가입문의'
 df_total.loc[df_total.category == '비용/환불 문의', 'label'] = '요금문의'
 df_total.loc[df_total.category == '제품/사용문의', 'label'] = '서비스문의'
+
+df_total_ver2.loc[df_total_ver2.category == '상품 가입 및 해지', 'label'] = '가입문의'
+df_total_ver2.loc[df_total_ver2.category == '사고 및 보상 문의', 'label'] = '서비스변경'
 
 def get_label(txt):
     label_one_len = len(re.findall(r'[가-힣]*결제[가-힣]*', txt)) + len(re.findall(r'[가-힣]*주문[가-힣]*', txt))
@@ -81,7 +93,15 @@ for idx, row in df_total.iterrows():
     txt = row['text']
     row['label'] = get_label(txt)
 
+for idx, row in df_total_ver2.iterrows():
+    txt = row['text']
+    row['label'] = get_label(txt)
+
 df_total.dropna(inplace=True)
+df_total_ver2.dropna(inplace=True)
+
+df = pd.concat([df_total, df_total_ver2], axis=0).reset_index(drop=True)
+df.to_csv('./labelled_data.csv', index=False, encoding='utf-8')
 
 ### 부가적인 옵션 (라벨 인코딩 시 sklearn Label Encoder 사용)
 # from sklearn.preprocessing import LabelEncoder
