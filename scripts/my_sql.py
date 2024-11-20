@@ -33,13 +33,13 @@ def validation_data(data):
         return end > start
 
     required_fields = {
-        "서비스명": lambda x: isinstance(x, str) and 1 <= len(x) <= 255,
+        "상담유형": lambda x: isinstance(x, str) and 1 <= len(x) <= 255,
         "통화시작": lambda x: validate_datetime(x),
         "통화종료": lambda x: validate_datetime(x),
         "통화시간": lambda x: isinstance(x, int) and x > 0,
         "고객명": lambda x: isinstance(x, str) and 1 <= len(x) <= 100,
         "전화번호": lambda x: validate_phone(x),
-        "상담유형": lambda x: isinstance(x, str) and 1 <= len(x) <= 50,
+        "키워드": lambda x: isinstance(x, str) and 1 <= len(x) <= 50,
         "상담사": lambda x: isinstance(x, str) and 1 <= len(x) <= 100,
         "상담내용": lambda x: isinstance(x, str) and len(x) > 0,
     }
@@ -70,16 +70,16 @@ def insert_data(data):
 
     try:
         with conn.cursor() as cur:
-            query = "insert into 상담이력 (서비스명, 통화시작, 통화종료, 통화시간, 고객명, 전화번호, 상담유형, 상담사, 상담내용) values (%s, %s, %s, %s, %s, %s, %s, %s, %s);"
+            query = "insert into 상담이력 (상담유형, 통화시작, 통화종료, 통화시간, 고객명, 전화번호, 키워드, 상담사, 상담내용) values (%s, %s, %s, %s, %s, %s, %s, %s, %s);"
             cur.execute("use conversation")
 
-            cur.execute(query, (data['서비스명'],
+            cur.execute(query, (data['상담유형'],
                                 data['통화시작'],
                                 data['통화종료'],
                                 data['통화시간'],
                                 data['고객명'],
                                 data['전화번호'],
-                                data['상담유형'],
+                                data['키워드'],
                                 data['상담사'],
                                 data['상담내용']
                                 ))
@@ -91,20 +91,21 @@ def insert_data(data):
 
 
 temp_data = {
-    "서비스명": "서비스A",
+    "상담유형": "서비스B",
     "통화시작": "2024-11-19 10:00:00",  # 필드 누락
     "통화종료": "2024-11-19 10:30:00",
     "통화시간": 30,
-    "고객명": "홍길동",
+    "고객명": "강진모",
     "전화번호": "010-1234-5678",
-    "상담유형": "기술지원",
+    "키워드": "기술지원",
     "상담사": "김상담사",
     "상담내용": "상담 내용입니다."
 }
 
-insert_data(temp_data)
+# insert_data(temp_data)
 
-cursor.execute("use conversation")
 cursor.execute("select * from 상담이력;")
 
-print(cursor.fetchall())
+data = cursor.fetchall()
+for d in data:
+    print(d)
