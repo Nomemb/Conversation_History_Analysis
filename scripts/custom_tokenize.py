@@ -1,8 +1,6 @@
 import pandas as pd
-import pprint
 import json
 from kiwipiepy import Kiwi
-from konlpy.tag import Okt, Komoran, Hannanum
 
 order_folder_path = "03.주문결제"
 undo_folder_path = "05.환불반품교환"
@@ -22,13 +20,7 @@ for index, row in df.iterrows():
     texts = []
     for line in row['info']['lines']:
         texts.append(line['text'])
-        # morph_list = kiwi.tokenize(line['text'])
-        #
-        # result.append({
-        #     "base_line": line['text'],
-        #     "base_tokenized_line": line['morpheme'],
-        #     "custom_tokenized_line": '+'.join([f"{morph[0]}/{morph[1]}" for morph in morph_list])
-        # })
+
     result.append({
         "index": index,
         "texts": texts
