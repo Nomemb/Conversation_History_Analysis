@@ -101,6 +101,12 @@ df_total.dropna(inplace=True)
 df_total_ver2.dropna(inplace=True)
 
 df = pd.concat([df_total, df_total_ver2], axis=0).reset_index(drop=True)
+
+for idx, instance in df.iterrows():
+    word = ', '.join(instance['keyword'])
+    instance['keyword'] = word
+
+
 df.to_csv('./labelled_data.csv', index=False, encoding='utf-8')
 
 ### 부가적인 옵션 (라벨 인코딩 시 sklearn Label Encoder 사용)
