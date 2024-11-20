@@ -1,19 +1,88 @@
 import streamlit as st
+from streamlit_option_menu import option_menu
+import streamlit.components.v1 as html
+from PIL import Image
+import numpy as np
 import pandas as pd
+import plotly.express as px
 import altair as alt
 
 # 데이터 로드
 file_path = 'C:/Users/Admin/Desktop/프로젝트_11월2차/Conversation_History_Analysis/data/6개월_상담데이터.csv'
 df = pd.read_csv(file_path, encoding='utf-8')
 
-# 와이드
+# 와이드 레이아웃 설정
 st.set_page_config(layout="wide")
 
 # 날짜 형식 변환
 df['상담일자시간'] = pd.to_datetime(df['상담일자시간'])
 
+#########################################################################################
+
+# 사이드바 커스텀 CSS
+st.markdown(
+    """
+    <style>
+    /* 사이드바 넓이 조정 */
+    [data-testid="stSidebar"] {
+        width: 100px;
+        background-color: rgba(240, 240, 240, 0.7); /* 반투명 배경 */
+    }
+
+    /* 사이드바 내부 패딩 및 텍스트 조정 */
+    [data-testid="stSidebar"] .css-1d391kg {
+        padding: 5px;
+        font-size: 8px;
+        color: #333;
+    }
+
+    /* 사이드바 선택된 항목 스타일 */
+    [data-testid="stSidebar"] .css-qrbaxs {
+        font-weight: bold;
+        color: #02ab21; /* 강조색 */
+    }
+
+    /* 옵션 메뉴 간 간격 조정 */
+    [data-testid="stSidebar"] .css-1v3fvcr {
+        margin-bottom: 10px;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+# 사이드바 구현
+with st.sidebar:
+    choose = option_menu(
+        "LGU+ 관리자메뉴", 
+        ["대시보드", "통화기록", "상담사 관리"],
+        icons=['bar-chart-fill', 'cassette', 'people-fill'],
+        menu_icon="person-fill-gear", 
+        default_index=0,
+        styles={
+            "container": {"padding": "5!important", "background-color": "#fafafa"},
+            "icon": {"color": "deep pink", "font-size": "9px"}, 
+            "nav-link": {"font-size": "10px", "text-align": "left", "margin":"0px", "--hover-color": "#eee"},
+            "nav-link-selected": {"background-color": "#02ab21"},
+        }
+    )
+
+# 선택에 따라 동작 변경
+if choose == "About":
+    st.title("About")
+    st.write("LGU+ 고객센터 관리자 모니터링 대시보드입니다.")
+elif choose == "Photo Editing":
+    st.title("Photo Editing")
+    st.write("사진 편집 기능은 현재 준비 중입니다.")
+elif choose == "Project Planning":
+    st.title("Project Planning")
+    st.write("프로젝트 계획 기능은 곧 제공될 예정입니다.")
+
 # 대시보드 타이틀
 st.title("LGU+ 고객센터 관리자 모니터링")
+st.write("메인 화면")
+
+###########################################################################################
 
 # 데이터 전처리
 df['상담일자'] = df['상담일자시간'].dt.date
