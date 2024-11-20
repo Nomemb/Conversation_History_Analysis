@@ -10,13 +10,13 @@ import my_sql
 
 # 데이터 로드
 file_path = 'C:/Users/Admin/Desktop/프로젝트_11월2차/Conversation_History_Analysis/data/6개월_상담데이터.csv'
-df = pd.read_csv(file_path, encoding='utf-8')
+df = my_sql.db_to_df()
 
 # 와이드 레이아웃 설정
 st.set_page_config(layout="wide")
 
 # 날짜 형식 변환
-df['상담일자시간'] = pd.to_datetime(df['상담일자시간'])
+df['통화시작'] = pd.to_datetime(df['통화시작'])
 
 #########################################################################################
 
@@ -55,17 +55,18 @@ st.markdown(
     /* 사이드바 선택된 항목 스타일 */
     [data-testid="stSidebar"] .css-qrbaxs {
         font-weight: bold;
-        color: #02ab21; /* 강조색 */
+        color: #e6007e; /* 강조색 */
     }
 
     /* 옵션 메뉴 간 간격 조정 */
     [data-testid="stSidebar"] .css-1v3fvcr {
-        margin-bottom: 10px;
+        margin-bottom: 8px;
     }
     </style>
     """,
     unsafe_allow_html=True
 )
+
 
 # 첫 번째 사이드바 블록
 with st.sidebar:
@@ -84,7 +85,7 @@ with st.sidebar:
         }
     )
 
-# 세번째 사이드바 블록
+# 두 번째 사이드바 블록
 with st.sidebar:
     st.markdown("### **관리**")
     choose_2 = option_menu(
@@ -101,7 +102,7 @@ with st.sidebar:
         }
     )
 
-# 두 번째 사이드바 블록
+# 세 번째 사이드바 블록
 with st.sidebar:
     st.markdown("### **이동**")
     choose_3 = option_menu(
@@ -124,7 +125,7 @@ with st.sidebar:
 st.markdown(
     """
     <div style="display: flex; align-items: center;">
-        <h1 style="margin-right: 20px; margin-top: -80px;">LGU+ 고객센터 관리자 모니터링</h1>
+        <h1 style="margin-right: 20px; margin-top: -80px; ">LGU+ 고객센터 관리자 모니터링</h1>
     </div>
     """, 
     unsafe_allow_html=True
@@ -133,11 +134,21 @@ st.markdown(
 
 
 ###########################################################################################
-
+'''
 # 데이터 전처리
-df['상담일자'] = df['상담일자시간'].dt.date
-min_date = df['상담일자'].min()
-max_date = df['상담일자'].max()
+df['통화시작'] = df['통화시작'].split(' ')[0]
+min_date = df['통화시작'].min()
+max_date = df['통화시작'].max()
+
+'''
+from scipy.stats import norm
+import numpy as np
+def generate_random_index(count):
+    return [
+        max(0, int(norm.rvs(loc=4, scale=0.3)))
+        for _ in range(count)
+    ]
+df['고객만족도'] = np.array(generate_random_index(len(df)))
 
 # 전체 레이아웃 컨테이너
 with st.container():
@@ -155,8 +166,8 @@ with st.container():
         with kpi_col1:
             st.markdown(
                 """
-                <div style="background-color: rgba(0, 0, 0, 0.1); border-radius: 15px; padding: 5px 10px 3px 10px; text-align: center;">
-                    <h4>총 상담 건수</h4>
+                <div style="background-color: rgba(0, 0, 0, 0.1); border-radius: 10px; padding: 10px 1px 3px 1px; text-align: center;">
+                    <h5>금일 상담 건수</h5>
                     <p style="font-size: 16px; color: #333;">{:,} 건</p>
                 </div>
                 """.format(len(df)),
@@ -165,28 +176,28 @@ with st.container():
         with kpi_col2:
             st.markdown(
                 """
-                <div style="background-color: rgba(0, 0, 0, 0.1); border-radius: 15px; padding: 5px 10px 3px 10px; text-align: center;">
-                    <h4>IB 비율</h4>
-                    <p style="font-size: 18px; color: #333;">{:.1f}%</p>
+                <div style="background-color: rgba(0, 0, 0, 0.1); border-radius: 10px; padding: 10px 1px 3px 1px; text-align: center;">
+                    <h5>근무중</h5>
+                    <p style="font-size: 18px; color: #333;">25명</p>
                 </div>
-                """.format((df['ib/ob 구분'].value_counts().get('Inbound', 0) / len(df) * 100)),
+                """.format((df['발신유형'].value_counts().get('IB', 0) / len(df) * 100)),
                 unsafe_allow_html=True
             )
         with kpi_col3:
             st.markdown(
                 """
-                <div style="background-color: rgba(0, 0, 0, 0.1); border-radius: 15px; padding: 5px 10px 3px 10px; text-align: center;">
-                    <h4>평균 상담 시간</h4>
-                    <p style="font-size: 18px; color: #333;">{:.1f} 초</p>
+                <div style="background-color: rgba(0, 0, 0, 0.1); border-radius: 10px; padding: 10px 1px 3px 1px; text-align: center;">
+                    <h5>후처리</h5>
+                    <p style="font-size: 18px; color: #333;">7명</p>
                 </div>
-                """.format(df['상담시간'].mean()),
+                """.format(df['통화시간'].mean()),
                 unsafe_allow_html=True
             )
         with kpi_col4:
             st.markdown(
                 """
-                <div style="background-color: rgba(0, 0, 0, 0.1); border-radius: 15px; padding: 5px 10px 3px 10px; text-align: center;">
-                    <h4>고객 만족도 평균</h4>
+                <div style="background-color: rgba(0, 0, 0, 0.1); border-radius: 10px; padding: 10px 1px 3px 1px; text-align: center;">
+                    <h5>고객 만족도 평균</h5>
                     <p style="font-size: 18px; color: #333;">{:.1f} 점</p>
                 </div>
                 """.format(df['고객만족도'].mean()),
@@ -198,24 +209,26 @@ with st.container():
     # 두 번째 줄: 상담 분류별 건수, 월별 상담 건수
     row1_col1, row1_col2, row1_col3 = st.columns([1, 1, 1])
     with row1_col1:
-        st.markdown("### 상담 분류별 상담 건수")
-        category_counts = df['상담분류'].value_counts().reset_index()
-        category_counts.columns = ['상담분류', '건수']
+        st.markdown("### 상담 유형별 상담 건수")
+        category_counts = df['상담유형'].value_counts().reset_index()
+        category_counts.columns = ['상담유형', '건수']
 
         category_chart = alt.Chart(category_counts).mark_bar().encode(
-            x=alt.X('상담분류', sort='-y'),
+            x=alt.X('상담유형', sort='-y'),
             y='건수',
-            color='상담분류'
+            color=alt.Color('상담유형', legend=None)  # 범례 제거
         ).properties(width=450, height=300)
+
         st.altair_chart(category_chart)
+
 
     with row1_col2:
         st.markdown("### 월별 상담 건수")
-        monthly_counts = df.groupby(df['상담일자시간'].dt.to_period('M')).size().reset_index(name='건수')
+        monthly_counts = df.groupby(df['통화시작'].dt.to_period('M')).size().reset_index(name='건수')
         monthly_chart = alt.Chart(monthly_counts).mark_line(point=True).encode(
-            x=alt.X('상담일자시간:T'),
+            x=alt.X('통화시작:T'),
             y='건수',
-            tooltip=['상담일자시간:T', '건수']
+            tooltip=['통화시작:T', '건수']
         ).properties(width=450, height=300)
         st.altair_chart(monthly_chart)
 
@@ -224,35 +237,39 @@ with st.container():
         satisfaction_chart = alt.Chart(df).mark_bar().encode(
             x=alt.X('고객만족도:O', title='고객만족도'),
             y='count()',
-            color='고객만족도:N'
+            color=alt.Color('고객만족도:N', legend=None)  # 범례 제거
         ).properties(width=450, height=300)
         st.altair_chart(satisfaction_chart)
+
 
     # 세 번째 줄: 고객 만족도, 상담사별 처리 건수
     row2_col1, row2_col2, row2_col3 = st.columns([1, 1, 1])
     with row2_col1:
         st.markdown("### 상담사별 처리 건수 Top 10")
-        top_agents = df['상담자'].value_counts().head(10).reset_index()
-        top_agents.columns = ['상담자', '건수']
+        top_agents = df['상담사'].value_counts().head(10).reset_index()
+        top_agents.columns = ['상담사', '건수']
 
         agent_chart = alt.Chart(top_agents).mark_bar().encode(
-            x=alt.X('상담자', sort='-y'),
+            x=alt.X('상담사', sort='-y'),
             y='건수',
-            color='상담자'
+            color='상담사'
         ).properties(width=450, height=300)
         st.altair_chart(agent_chart)
 
     with row2_col2:
-        st.markdown("### 지역별 상담 분포")
-        region_counts = df['지역'].value_counts().reset_index()
-        region_counts.columns = ['지역', '건수']
+        st.markdown("### 키워드 분포도")
+        # 키워드별 빈도 계산
+        keyword_counts = df['키워드'].value_counts().reset_index()
+        keyword_counts.columns = ['키워드', '건수']
 
-        region_chart = alt.Chart(region_counts).mark_bar().encode(
-            x=alt.X('지역', sort='-y'),
-            y='건수',
-            color='지역'
+    # 막대 그래프 생성
+        keyword_chart = alt.Chart(keyword_counts).mark_bar().encode(
+            x=alt.X('키워드', sort='-y', title='키워드'),
+            y=alt.Y('건수', title='건수'),
+            color=alt.Color('키워드', legend=None)  # 범례 제거
         ).properties(width=450, height=300)
-        st.altair_chart(region_chart)
+        
+        st.altair_chart(keyword_chart)
 
     # 다섯 번째 줄: 공지사항
     with row2_col3:

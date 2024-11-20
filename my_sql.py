@@ -25,6 +25,7 @@ def validation_data(data):
         "키워드": lambda x: isinstance(x, str) and 1 <= len(x) <= 255,
         "상담사": lambda x: isinstance(x, str) and 1 <= len(x) <= 100,
         "상담내용": lambda x: isinstance(x, str) and len(x) > 0,
+        "고객만족도": lambda x: isinstance(x, int)
     }
 
     # 필수 필드가 모두 있는지 확인
@@ -47,7 +48,7 @@ def insert_data(data):
 
     try:
         with conn.cursor() as cur:
-            query = "insert into 상담이력 (상담유형, 통화시작, 통화종료, 통화시간, 고객명, 전화번호, 키워드, 상담사, 상담내용) values (%s, %s, %s, %s, %s, %s, %s, %s, %s);"
+            query = "insert into 상담이력 (상담유형, 통화시작, 통화종료, 통화시간, 고객명, 전화번호, 키워드, 상담사, 상담내용, 고객만족도) values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"
             cur.execute("use conversation")
 
             cur.execute(query, (data['상담유형'],
@@ -58,7 +59,8 @@ def insert_data(data):
                                 data['전화번호'],
                                 data['키워드'],
                                 data['상담사'],
-                                data['상담내용']
+                                data['상담내용'],
+                                data['고객만족도']
                                 ))
 
             conn.commit()
@@ -82,7 +84,7 @@ def db_to_df():
     result = cursor.fetchall()
 
     df = pd.DataFrame(result)
-    df.columns = ['No','상담유형','통화시작','통화종료','통화시간','고객명','전화번호','키워드','상담사','상담내용']
+    df.columns = ['No','상담유형','통화시작','통화종료','통화시간','고객명','전화번호','키워드','상담사','상담내용','발신유형']
     return df
 
 
